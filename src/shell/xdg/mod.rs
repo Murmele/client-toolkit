@@ -20,6 +20,7 @@ use crate::compositor::Surface;
 use crate::error::GlobalError;
 use crate::globals::{GlobalData, ProvidesBoundGlobal};
 use crate::registry::GlobalProxy;
+use crate::shell::xdg::popup::{Popup, PopupData};
 
 use self::window::inner::WindowInner;
 use self::window::{

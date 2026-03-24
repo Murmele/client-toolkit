@@ -27,9 +27,7 @@ impl PartialEq for Popup {
 }
 
 #[derive(Debug)]
-pub struct PopupData {
-    inner: Weak<PopupInner>,
-}
+pub struct PopupData(pub(crate) Weak<PopupInner>);
 
 #[derive(Debug)]
 struct PopupInner {
@@ -91,18 +89,11 @@ impl Popup {
         // new objects being processed and the Weak in the PopupData becoming usable.
         let freeze = qh.freeze();
         let inner = Arc::new_cyclic(|weak| {
-            let xdg_surface = wm_base.get_xdg_surface(
-                surface.wl_surface(),
-                qh,
-                PopupData { inner: weak.clone() },
-            );
+            let xdg_surface =
+                wm_base.get_xdg_surface(surface.wl_surface(), qh, PopupData(weak.clone()));
             let surface = XdgShellSurface { surface, xdg_surface };
-            let xdg_popup = surface.xdg_surface().get_popup(
-                parent,
-                position,
-                qh,
-                PopupData { inner: weak.clone() },
-            );
+            let xdg_popup =
+                surface.xdg_surface().get_popup(parent, position, qh, PopupData(weak.clone()));
 
             PopupInner {
                 surface,
@@ -143,7 +134,7 @@ impl PopupData {
     ///
     /// This returns `None` if the popup has been destroyed.
     pub fn popup(&self) -> Option<Popup> {
-        let inner = self.inner.upgrade()?;
+        let inner = self.0.upgrade()?;
         Some(Popup { inner })
     }
 }
