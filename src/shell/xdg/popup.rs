@@ -1,3 +1,4 @@
+use crate::shell::WaylandSurface;
 use crate::{
     compositor::{Surface, SurfaceData},
     error::GlobalError,
@@ -105,7 +106,8 @@ impl Popup {
             }
         });
         drop(freeze);
-        Ok(Popup { inner })
+        let popup = Popup { inner };
+        Ok(popup)
     }
 
     pub fn xdg_popup(&self) -> &xdg_popup::XdgPopup {
@@ -150,7 +152,9 @@ impl Drop for PopupInner {
 pub struct PopupConfigure {
     /// (x,y) relative to parent surface window geometry
     pub position: (i32, i32),
+    /// Constrained width of the popup
     pub width: i32,
+    /// Constrained height of the popup
     pub height: i32,
     pub serial: u32,
     pub kind: ConfigureKind,
@@ -263,6 +267,12 @@ where
             }
             _ => unreachable!(),
         }
+    }
+}
+
+impl WaylandSurface for Popup {
+    fn wl_surface(&self) -> &wl_surface::WlSurface {
+        self.wl_surface()
     }
 }
 
